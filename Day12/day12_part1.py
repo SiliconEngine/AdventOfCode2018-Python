@@ -1,0 +1,67 @@
+#!/usr/bin/python
+"""Advent of Code 2018, Day 12, Part 1
+
+https://adventofcode.com/2018/day/12
+
+Given a series of "pots" that may or may not contain a plant, apply growth/death
+rules. Calculate a score after 20 cycles.
+
+See test.dat for sample data and pots.dat for full data.
+
+Author: Tim Behrendsen
+"""
+
+from functools import reduce
+from collections import defaultdict
+
+fn = 'test.dat'
+fn = 'pots.dat'
+
+def dsp_state(state, low, high):
+    print(f'STATE ({low} - {high}): ', end='')
+    for i in range(low, high+1):
+        print('#' if state[i] else '.', end='')
+    print()
+
+def calc_score(state, low_pot, high_pot):
+    score = 0
+    for pot in range(low_pot, high_pot+1):
+        if state[pot]:
+            score += pot
+    return score
+
+def main():
+    # Read the rules, convert '.' = 0 and '#' = 1 and storing as binary
+    # There are 32 combinations
+    rules = [ 0 for i in range(32) ]
+    with open(fn, 'r') as file:
+        init_state = file.readline().rstrip("\n")
+        file.readline()
+        while line := file.readline().rstrip("\n"):
+            if line[-1] == '#':
+                idx = int(line[0:5].replace('#', '1').replace('.', '0'), 2)
+                rules[idx] = 1
+
+    low_pot = 0
+    high_pot = len(init_state)-1
+    state = defaultdict(int)
+    for idx, c in enumerate(init_state[15:]):
+        state[idx] = 1 if c == '#' else 0
+
+    for cycle in range(20):
+        new_state = defaultdict(int)
+        for pot in range(low_pot-2, high_pot+3):
+            # Create integer from slice of five pots
+            s = [ state[idx] for idx in range(pot-2, pot+3)  ]
+            n = reduce(lambda acc, b: (acc << 1) | b, s, 0)
+            new_state[pot] = rules[n]
+            if rules[n]:                # If new plant, possibly adjust low/high
+                low_pot = min(low_pot, pot)
+                high_pot = max(high_pot, pot)
+
+        state = new_state
+
+    return calc_score(state, low_pot, high_pot)
+
+answer = main()
+print(f"Answer is {answer}")
