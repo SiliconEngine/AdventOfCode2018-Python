@@ -307,7 +307,7 @@ and over, which eventually causes a repeating cycle.
 I would imagine the puzzle varies the two constants, which are read from the
 program data for these optimized versions.
 
-### Advent of Code 2018, Day 22, Part 1
+### Advent of Code 2018, Day 22, Part 2
 
 Link: https://adventofcode.com/2018/day/22
 
